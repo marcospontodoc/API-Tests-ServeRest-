@@ -1,0 +1,23 @@
+{
+  "name": "api-tests-serverest-",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcospontodoc/API-Tests-ServeRest-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/marcospontodoc/API-Tests-ServeRest-/issues"
+  },
+  "homepage": "https://github.com/marcospontodoc/API-Tests-ServeRest-#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0"
+  }
+}
