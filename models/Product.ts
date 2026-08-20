@@ -1,6 +1,10 @@
 export interface Product {
-  name: string;
-  price: number;
-  description: string;
-  quantity: number;
+  nome: string;
+  preco: number;
+  descricao: string;
+  quantidade: number;
+}
+
+export interface ProductResponse extends Product {
+  _id: string;
 }

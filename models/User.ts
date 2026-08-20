@@ -1,6 +1,11 @@
 export interface User {
-  name: string;
+  nome: string;
   email: string;
   password: string;
-  administrator: string;
+  administrador: string;
+}
+
+export interface UserResponse {
+  message: string;
+  _id: string;
 }

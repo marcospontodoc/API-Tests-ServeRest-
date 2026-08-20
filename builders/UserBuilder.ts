@@ -5,11 +5,12 @@ export function createUser(
   administrador: boolean = false
 ): User {
   return {
-    name: faker.person.fullName(),
+    nome: faker.person.fullName(),
     email: faker.internet.email(),
     password: faker.internet.password({
       length: 12,
+      memorable: false,
     }),
-    administrator: administrador.toString(),
+    administrador: administrador.toString(),
   };
 }
