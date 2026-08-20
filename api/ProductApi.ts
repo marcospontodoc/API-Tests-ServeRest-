@@ -17,12 +17,13 @@ export class ProductApi {
 
   async create(
     product: Product,
-    token: string
+    token ?: string
   ) {
     return await this.request.post('/produtos', {
-      headers: {
+       headers: token ? {
         Authorization: token,
-      },
+      }
+      : undefined,
       data: product,
     });
   }

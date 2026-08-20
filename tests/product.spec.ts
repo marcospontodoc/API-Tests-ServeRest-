@@ -78,4 +78,84 @@ test.describe('API - Products', () => {
 
   });
 
+  test('should not create a product without a price', async () => {
+
+    const product = createProduct();
+    product.preco = 0;
+
+    const response =
+      await productApi.create(
+        product,
+        token
+      );
+
+    expect(response.status()).toBe(400);
+
+  });
+
+  test('should not create a product without a description', async () => {
+
+    const product = createProduct();
+    product.descricao = '';
+
+    const response =
+      await productApi.create(
+        product,
+        token
+      );
+
+    expect(response.status()).toBe(400);
+  });
+
+
+  test('should not create a product with a duplicate name', async () => {
+
+    const product = createProduct();
+
+    const firstResponse =
+      await productApi.create(
+        product,
+        token
+      );
+
+    expect(firstResponse.status()).toBe(201);
+
+    const firstBody = await firstResponse.json();
+
+    productsCreated.push(firstBody._id);
+
+    const secondResponse =
+      await productApi.create(
+        product,
+        token
+      );
+
+    expect(secondResponse.status()).toBe(400);
+
+    const secondBody = await secondResponse.json();
+
+    expect(secondBody.message).toContain(
+      'Já existe produto com esse nome'
+    );
+
+  });
+
+});
+
+test.describe('API - Products - Unauthenticated', () => {
+
+  test('should not create a product without authentication', async ({
+    request,
+  }) => {
+
+    const productApi = new ProductApi(request);
+
+    const product = createProduct();
+
+    const response =
+      await productApi.create(product);
+
+    expect(response.status()).toBe(401);
+  });
+
 });
