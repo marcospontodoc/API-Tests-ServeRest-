@@ -1,58 +1,53 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../api/AuthApi';
-import { UserApi } from '../api/UserApi';
 import { ProductApi } from '../api/ProductApi';
-import { createUser } from '../builders/UserBuilder';
 import { createProduct } from '../builders/ProductBuilder';
+import { createAdminAndgetToken } from '../helpers/authHelper';
+
 
 test.describe('API - Products', () => {
 
-  let userApi: UserApi;
-  let authApi: AuthApi;
   let productApi: ProductApi;
+  let token: string;
+
+  let productsCreated: string[] = [];
 
   test.beforeEach(async ({ request }) => {
 
-    userApi = new UserApi(request);
-    authApi = new AuthApi(request);
     productApi = new ProductApi(request);
+
+    token = await createAdminAndgetToken(request);
 
   });
 
-  test('deve cadastrar um produto com usuário administrador', async () => {
+  test.afterEach(async () => {
 
-    // Arrange
-    const admin = createUser(true);
+    for (const productId of productsCreated) {
 
-    // Cria administrador
-    const cadastroUsuario =
-      await userApi.create(admin);
-      expect(cadastroUsuario.status()).toBe(201);
+      const response =
+        await productApi.delete(
+          productId,
+          token
+        );
 
-    // Login
-    const login =
-      await authApi.login({
-        email: admin.email,
-        password: admin.password,
-      });
+      expect([200, 204]).toContain(
+        response.status()
+      );
+    }
 
-    expect(login.status()).toBe(200);
+    productsCreated = [];
 
-    const loginBody = await login.json();
+  });
 
-    const token = loginBody.authorization;
+  test('should create a product with valid data', async () => {
 
-    // Cria produto
-    const produto = createProduct();
+    const product = createProduct();
 
-    // Act
     const response =
       await productApi.create(
-        produto,
+        product,
         token
       );
 
-    // Assert
     expect(response.status()).toBe(201);
 
     const body = await response.json();
@@ -62,6 +57,24 @@ test.describe('API - Products', () => {
     );
 
     expect(body).toHaveProperty('_id');
+
+    productsCreated.push(body._id);
+
+  });
+
+  test('should not create a product without a name', async () => {
+
+    const product = createProduct();
+
+    product.nome = '';
+
+    const response =
+      await productApi.create(
+        product,
+        token
+      );
+
+    expect(response.status()).toBe(400);
 
   });
 
