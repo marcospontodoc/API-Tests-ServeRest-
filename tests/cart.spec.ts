@@ -16,6 +16,7 @@ test.describe('API - Cart', () => {
 
   let token: string;
   let productId: string;
+  let productStock: number;
 
 
   test.beforeEach(async ({ request }) => {
@@ -26,6 +27,7 @@ test.describe('API - Cart', () => {
     token = await createAdminAndgetToken(request);
 
     const product = createProduct();
+    productStock = product.quantidade;
 
     const response = await productApi.create(
       product,
@@ -102,4 +104,67 @@ test('should not allow adding a quantity greater than the available stock', asyn
   );
 });
 
+test('should delete cart and restore product stock when canceling a purchase', async () => {
+
+  const quantity = 3;
+
+  const cart = createCart(
+    productId,
+    quantity
+  );
+
+ 
+  const createCartResponse =
+    await cartApi.create(
+      cart,
+      token
+    );
+
+  expect(createCartResponse.status()).toBe(201);
+
+  const cartBody = await createCartResponse.json();
+
+  const cartId = cartBody._id;
+
+  
+  const productAfterCart =
+    await productApi.search(productId);
+
+  expect(productAfterCart.status()).toBe(200);
+
+  const productAfterCartBody =
+    await productAfterCart.json();
+
+  expect(productAfterCartBody.quantidade).toBe(
+    productStock - quantity
+  );
+
+  
+  const cancelResponse =
+    await cartApi.cancelPurchase(token);
+
+  expect(cancelResponse.status()).toBe(200);
+
+ 
+  const cartSearchResponse =
+    await cartApi.search(
+      cartId,
+      token
+    );
+
+  expect(cartSearchResponse.status()).toBe(400);
+
+ 
+  const productAfterCancel =
+    await productApi.search(productId);
+
+  expect(productAfterCancel.status()).toBe(200);
+
+  const productAfterCancelBody =
+    await productAfterCancel.json();
+
+  expect(productAfterCancelBody.quantidade).toBe(
+    productStock
+  );
+});
 });
